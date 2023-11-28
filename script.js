@@ -1,59 +1,59 @@
-let key = "daf6cc4f80b94836d9a3babe0067453e";
-let result = document.getElementById("result");
-let searchBtn = document.getElementById("search-btn");
-let cityRef = document.getElementById("city");
+const apiKey = "daf6cc4f80b94836d9a3babe0067453e";
+
+const resultElement = document.getElementById("result");
+const searchBtn = document.getElementById("search-btn");
+const cityInput = document.getElementById("city");
 
 const fahrenheitToCelsius = (fahrenheit) => {
   return (fahrenheit - 32) * 5/9;
-}
-//Function to fetch weather details from api and display them
-let getWeather = () => {
-  let cityValue = cityRef.value;
-  //If input field is empty
-  if (cityValue.length == 0) {
-    result.innerHTML = `<h3 class="msg">Please enter a city name</h3>`;
-  }
-  //If input field is NOT empty
-  else {
-    let url = `https://api.openweathermap.org/data/2.5/weather?q=${cityValue}&appid=${key}&units=metric`;
-    //Clear the input field
-    cityRef.value = "";
-    fetch(url)
-      .then((resp) => resp.json())
-      //If city name is valid
-      .then((data) => {
-        console.log(data);
-        console.log(data.weather[0].icon);
-        console.log(data.weather[0].main);
-        console.log(data.weather[0].description);
-        console.log(data.name);
-        console.log(data.main.temp);
-        console.log(data.main.temp_min);
-        console.log(data.main.temp_max);
-
-        result.innerHTML = `
-        <h2>${data.name}</h2>
-        <h4 class="weather">${data.weather[0].main}</h4>
-        <h4 class="desc">${data.weather[0].description}</h4>
-        <img src="https://openweathermap.org/img/w/${data.weather[0].icon}.png">
-        <h1>${data.main.temp} &#176;</h1>
-        <div class="temp-container">
-            <div>
-                <h4 class="title">min</h4>
-                <h4 class="temp">${data.main.temp_min}&#176;</h4>
-            </div>
-            <div>
-                <h4 class="title">max</h4>
-                <h4 class="temp">${data.main.temp_max}&#176;</h4>
-            </div>
-        </div>
-        `;
-      })
-      //If city name is NOT valid
-      .catch(() => {
-        result.innerHTML = `<h3 class="msg">City not found</h3>`;
-      });
-  }
 };
+
+const displayWeather = (data) => {
+  resultElement.innerHTML = `
+    <h2>${data.name}</h2>
+    <h4 class="weather">${data.weather[0].main}</h4>
+    <h4 class="desc">${data.weather[0].description}</h4>
+    <img src="https://openweathermap.org/img/w/${data.weather[0].icon}.png">
+    <h1>${data.main.temp} &#176;</h1>
+    <div class="temp-container">
+        <div>
+            <h4 class="title">min</h4>
+            <h4 class="temp">${data.main.temp_min}&#176;</h4>
+        </div>
+        <div>
+            <h4 class="title">max</h4>
+            <h4 class="temp">${data.main.temp_max}&#176;</h4>
+        </div>
+    </div>
+  `;
+};
+
+const handleInvalidCity = () => {
+  resultElement.innerHTML = `<h3 class="msg">City not found</h3>`;
+};
+
+const getWeather = () => {
+  const cityValue = cityInput.value.trim();
+
+  if (cityValue.length === 0) {
+    resultElement.innerHTML = `<h3 class="msg">Please enter a city name</h3>`;
+    return;
+  }
+
+  const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityValue}&appid=${apiKey}&units=metric`;
+
+  cityInput.value = ""; // Clear the input field
+
+  fetch(apiUrl)
+    .then((resp) => resp.json())
+    .then((data) => {
+      console.log(data);
+      displayWeather(data);
+    })
+    .catch(() => {
+      handleInvalidCity();
+    });
+};
+
 searchBtn.addEventListener("click", getWeather);
 window.addEventListener("load", getWeather);
